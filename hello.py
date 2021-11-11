@@ -1,10 +1,21 @@
 from flask import Flask, render_template
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 
 ### Create a flask instance
-app1 = Flask(__name__)
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'my super secret key'
+
+### Create a Form Class
+class NamerForm(FlaskForm):
+  name = StringField("What's you Name", validators=[DataRequired()])
+  submit = SubmitField("Submit you name")
+
+
 
 ### Create a route decorator
-@app1.route('/')
+@app.route('/')
 
 
 ### jinja filters:
@@ -26,7 +37,7 @@ def index():
     favorite_pizza=favorite_pizza,
     stuff=stuff)
 
-@app1.route('/user/<name>')
+@app.route('/user/<name>')
 
 def user22(name):
   return render_template('user.html', name=name)
@@ -34,12 +45,27 @@ def user22(name):
 ### Create Custom Error Pages
 
 ###   Invalid URL
-@app1.errorhandler(404)
+@app.errorhandler(404)
 def page_not_found(e):
   return render_template('404.html'), 404
 
 ###  Internal Server Error
-@app1.errorhandler(500)
+@app.errorhandler(500)
 def page_not_found(e):
   return render_template('500.html'), 500
+
+### Create Name Page
+@app.route('/name', methods=['GET', 'POST'])
+def name():
+  name = None
+  form = NamerForm()
+
+  ### Validate the data from the Form
+  if form.validate_on_submit():
+    name = form.name.data
+    form.name.data = ''
+
+  return render_template('name.html',
+	name = name,
+	form = form)
 
